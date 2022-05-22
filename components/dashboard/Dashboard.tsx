@@ -11,20 +11,15 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import Chart from './Chart';
-import Deposits from './Deposits';
-import Orders from './Orders';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
-import { ListItem } from './utils';
+import { DashboardProps, ListItem } from './utils';
+import { ListSubheader } from '@mui/material';
 
 function Copyright(props: any) {
   return (
@@ -91,12 +86,19 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const mdTheme = createTheme();
 
-function DashboardContent(props: any) {
-  const { mainListItems, secondaryListItems, title } = props
+function DashboardLayout(props: DashboardProps) {
+  const { mainListItems, secondaryListItems, title, secondaryTitle } = props
   const [open, setOpen] = React.useState(true);
+  const [dashboardContent, setDashboardContent] = React.useState(mainListItems[0].component);
+  const [tab, setTab] = React.useState(mainListItems[0].name);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  async function updateTab(tab: string, component: any){
+    setTab(tab)
+    setDashboardContent(component)
+  }
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -127,7 +129,7 @@ function DashboardContent(props: any) {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              {title}
+              {title} : {tab}
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -152,7 +154,7 @@ function DashboardContent(props: any) {
           <Divider />
           <List component="nav">
             {mainListItems && mainListItems.map((item: ListItem) => (
-              <ListItemButton>
+              <ListItemButton onClick={() => updateTab(item.name, item.component)}>
                 <ListItemIcon>
                   {item.icon}
                 </ListItemIcon>
@@ -161,6 +163,9 @@ function DashboardContent(props: any) {
             ))
             }
             <Divider sx={{ my: 1 }} />
+            <ListSubheader component="div" inset>
+              {secondaryTitle}
+            </ListSubheader>
             {secondaryListItems && secondaryListItems.map((item: ListItem) => (
               <ListItemButton>
                 <ListItemIcon>
@@ -186,40 +191,7 @@ function DashboardContent(props: any) {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
-                </Paper>
-              </Grid>
-            </Grid>
+            {dashboardContent}
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
@@ -229,5 +201,5 @@ function DashboardContent(props: any) {
 }
 
 export default function Dashboard(props: any) {
-  return <DashboardContent {...props}/>;
+  return <DashboardLayout {...props}/>;
 }
